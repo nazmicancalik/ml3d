@@ -198,7 +198,11 @@ def marching_cubes(sdf: np.array) -> tuple:
                         face.append(vertices_index)
                         vertices_index+=1
                     global_triangles.append(face)
-    global_vertices = np.array(global_vertices).reshape(-1,3,3)
+    # I have here reshaped global vertices as it solves my problem with flip_axes = True problem.
+    # Here https://www.moodle.tum.de/mod/forum/discuss.php?d=281056#p531375 it is said that 
+    # "The reason why we apply concatenate to the vertex list is that we return a list of 3x3 numpy arrays for the vertices of each face in our implementation." 
+    # Thats why I have returned a list of 3x3 numpy arrays. I didn't wanna remove flip_axes = True nor change the np.concatenate to np.stack
+    global_vertices = np.array(global_vertices).reshape(-1,3,3) 
     global_triangles = np.array(global_triangles)
     # ###############
 
