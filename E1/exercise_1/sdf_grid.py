@@ -13,19 +13,12 @@ def sdf_grid(sdf_function, resolution):
     """
 
     # ###############
-    coordinates = np.linspace(-0.5,0.5,num=resolution+1)
+    coordinates = np.linspace(-0.5,0.5,num=resolution)
+    xx,yy,zz = np.meshgrid(coordinates,coordinates,coordinates,indexing='ij')
     
-    sdf_grid = np.zeros((resolution,resolution,resolution))
-    
-    for x in range(resolution):
-        for y in range(resolution):
-            for z in range(resolution):
-                # The middle of the vortex
-                x_ = (coordinates[x] + coordinates[x+1])/2.0
-                y_ = (coordinates[y] + coordinates[y+1])/2.0
-                z_ = (coordinates[z] + coordinates[z+1])/2.0
-                sdf_value = sdf_function(x_,y_,z_)
-                sdf_grid[x,y,z] = sdf_value
+    sdf_values = sdf_function(xx.flatten(),yy.flatten(),zz.flatten())
+    sdf_grid = sdf_values.reshape(resolution,resolution,resolution)
     
     return sdf_grid
+
     # ###############

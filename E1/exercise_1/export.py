@@ -14,7 +14,13 @@ def export_mesh_to_obj(path, vertices, faces):
     # write faces starting with "f "
 
     # ###############
-    # TODO: Implement
+    f = open(path, "a")
+    f.truncate(0) # remove old content
+    for vertex in vertices:
+        f.write('v ' + ' '.join(map(str,vertex)) + '\n')
+    for face in faces:
+        f.write('f ' + ' '.join(map(str,face))+ '\n')
+    f.close()
     # ###############
 
 

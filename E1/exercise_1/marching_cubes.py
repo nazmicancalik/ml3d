@@ -193,11 +193,13 @@ def marching_cubes(sdf: np.array) -> tuple:
                         p1_corner_index,p2_corner_index = edges_to_corners[three_edges[p]]                    
                         p_1 = base + corner_location_offsets[p1_corner_index]
                         p_2 = base + corner_location_offsets[p2_corner_index]
-                        vertex = vertex_interpolation(p_1, p_2, v_1=0, v_2=0)
+                        vertex = vertex_interpolation(p_1, p_2, sdf[p_1[0],p_1[1],p_1[2]], sdf[p_2[0],p_2[1],p_2[2]])
                         global_vertices.append(vertex)
                         face.append(vertices_index)
                         vertices_index+=1
                     global_triangles.append(face)
+    global_vertices = np.array(global_vertices).reshape(-1,3,3)
+    global_triangles = np.array(global_triangles)
     # ###############
 
     return global_vertices, global_triangles
@@ -213,5 +215,5 @@ def vertex_interpolation(p_1, p_2, v_1, v_2, isovalue=0.):
     :param isovalue: The iso value, always 0 in our case
     :return: A single point
     """
-
-    return p_1 + (p_2 - p_1) / 2.
+    mu = (isovalue - v_1) / (v_2 - v_1)
+    return p_1 + mu * (p_2 - p_1)
