@@ -34,5 +34,9 @@ def export_pointcloud_to_obj(path, pointcloud):
     """
 
     # ###############
-    # TODO: Implement
+    f = open(path, "a")
+    f.truncate(0) # remove old content
+    for point in pointcloud:
+        f.write('v ' + ' '.join(map(str,point)) + '\n')
+    f.close()
     # ###############

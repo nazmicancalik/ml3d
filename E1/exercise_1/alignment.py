@@ -19,6 +19,21 @@ def procrustes_align(pc_x, pc_y):
     # 3. estimate rotation
     # 4. estimate translation
     # R and t should now contain the rotation (shape 3x3) and translation (shape 3,)
+    # Center pcx and pcy
+    center_pc_x = np.mean(pc_x,axis=0)
+    center_pc_y = np.mean(pc_y,axis=0)
+    centered_pc_x = pc_x - center_pc_x
+    centered_pc_y = pc_y - center_pc_y
+    
+    # reshape
+    X = centered_pc_x.T
+    Y = centered_pc_y.T
+    
+    #(U, S, Vt) = np.linalg.svd(np.dot(X, Y.T))
+    #R = np.dot(Vt.T,U.T)
+    (U, S, Vt) = np.linalg.svd(np.dot(Y, X.T))
+    R = np.dot(U,Vt)
+    t = center_pc_y - R@center_pc_x
     # TODO: Your implementation ends here ###############
 
     t_broadcast = np.broadcast_to(t[:, np.newaxis], (3, pc_x.shape[0]))
