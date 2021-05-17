@@ -46,10 +46,10 @@ class SimpleModel(torch.nn.Module):
 
 def train(model, train_dataloader, val_dataloader, device, config):
     # TODO Declare Loss function; Use CrossEntropyLoss
-    loss_criterion = None
+    loss_criterion = torch.nn.CrossEntropyLoss()
 
     # TODO Declare optimizer; Use ADAM with learning rate from config['learning_rate']
-    optimizer = None
+    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
 
     # Set model to train, important if your network has e.g. dropout or batchnorm layers
     model.train()
@@ -64,7 +64,8 @@ def train(model, train_dataloader, val_dataloader, device, config):
         for i, batch in enumerate(train_dataloader):
             input_data, target_labels = batch
             # TODO Move input_data and target_labels to device
-
+            input_data = input_data.to(device)
+            target_labels = target_labels.to(device)
             # This is where the actual training happens:
             # 1 Zero out gradients from last iteration
             optimizer.zero_grad()
@@ -95,6 +96,8 @@ def train(model, train_dataloader, val_dataloader, device, config):
                 for batch_val in val_dataloader:
                     input_data, target_labels = batch_val
                     # TODO Move input_data and target_labels to device
+                    input_data = input_data.to(device)
+                    target_labels = target_labels.to(device)
 
                     with torch.no_grad():
                         prediction = model(input_data)
@@ -128,7 +131,8 @@ def main(config):
         print('Using CPU')
 
     # Create Dataloaders
-    train_dataset = None  # TODO Instantiate Dataset in train split
+    train_dataset = SimpleDataset('train')  # TODO Instantiate Dataset in train split
+    print(train_dataset.shape)
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,   # Datasets return data one sample at a time; Dataloaders use them and aggregate samples into batches
         batch_size=config['batch_size'],   # The size of batches is defined here
@@ -137,7 +141,7 @@ def main(config):
         pin_memory=True  # This is an implementation detail to speed up data uploading to the GPU
     )
 
-    val_dataset = None  # TODO Instantiate Dataset in val split
+    val_dataset = SimpleDataset('val')  # TODO Instantiate Dataset in val split
     val_dataloader = torch.utils.data.DataLoader(
         val_dataset,     # Datasets return data one sample at a time; Dataloaders use them and aggregate samples into batches
         batch_size=config['batch_size'],   # The size of batches is defined here
@@ -147,7 +151,8 @@ def main(config):
     )
 
     # TODO Instantiate model and move to device
-    model = None
+    model = SimpleModel()
+    model = model.to(device)
 
     # Create folder for saving checkpoints
     Path(f'exercise_2/runs/{config["experiment_name"]}').mkdir(exist_ok=True, parents=True)
