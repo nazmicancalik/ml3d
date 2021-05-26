@@ -132,7 +132,6 @@ def main(config):
 
     # Create Dataloaders
     train_dataset = SimpleDataset('train')  # TODO Instantiate Dataset in train split
-    print(train_dataset.shape)
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,   # Datasets return data one sample at a time; Dataloaders use them and aggregate samples into batches
         batch_size=config['batch_size'],   # The size of batches is defined here

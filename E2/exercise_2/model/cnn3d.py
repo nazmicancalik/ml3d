@@ -15,7 +15,14 @@ class MLPConv(nn.Module):
         super().__init__()
         # TODO: Define MLPConv model as nn.Sequential as described in the paper (Conv3d, ReLU, Conv3D, ReLU, Conv3D, ReLU)
         # The first conv has kernel_size and stride provided as the parameters, rest of the convs have 1x1x1 filters, with default stride
-        self.model = None
+        self.model = nn.Sequential(OrderedDict([
+          ('conv1', nn.Conv3d(in_channels,out_channels,kernel_size,stride)),
+          ('relu1', nn.ReLU()),
+          ('conv2', nn.Conv3d(out_channels,out_channels,1,1)),
+          ('relu2', nn.ReLU()),
+          ('conv3', nn.Conv3d(out_channels,out_channels,1,1)),
+          ('relu3', nn.ReLU())
+        ]))
 
     def forward(self, x):
         """
@@ -37,7 +44,11 @@ class ThreeDeeCNN(nn.Module):
         super().__init__()
 
         # TODO: Define backbone as sequence of 3 MLPConvs as per the paper
-        self.backbone = None
+        self.backbone = nn.Sequential(OrderedDict([
+          ('mlpconv1', MLPConv(in_channels,out_channels,kernel_size,stride)),
+          ('mlpconv2', MLPConv(in_channels,out_channels,kernel_size,stride)),
+          ('mlpconv3', MLPConv(in_channels,out_channels,kernel_size,stride))
+        ]))
 
         self.feature_cube_side = 2  # side of resulting volume after last MLPConv layer
 
