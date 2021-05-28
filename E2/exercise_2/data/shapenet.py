@@ -92,19 +92,18 @@ class ShapeNetPoints(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         # TODO Get item associated with index, get class, load points with ShapeNetPoints.get_point_cloud
-
+        item = self.items[index]
         # Hint: Since shape names are in the format "<shape_class>/<shape_identifier>", the first part gives the class
-        item_class = None
-
+        item_class = item.split('/')[0]
+        points = ShapeNetPoints.get_point_cloud(item)
         return {
-            "name": None,  # The item ID
-            "points": None,
+            "name": item,  # The item ID
+            "points": points.astype(np.float32),
             "label": ShapeNetPoints.classes.index(item_class)  # Label is 0 indexed position in sorted class list, e.g. 02691156 is label 0, 02828884 is label 1 and so on.
         }
 
     def __len__(self):
-        # TODO Implement
-        pass
+        return len(self.items)
 
     @staticmethod
     def move_batch_to_device(batch, device):
@@ -123,6 +122,5 @@ class ShapeNetPoints(torch.utils.data.Dataset):
         :return: a numpy array representing the point cloud, in shape 3 x 1024
         """
         category_id, shape_id = shapenet_id.split('/')
-
-        # TODO Implement
-        pass
+        points = trimesh.load(ShapeNetPoints.dataset_path / (shapenet_id + '.obj')).astype(np.float32)
+        return points
