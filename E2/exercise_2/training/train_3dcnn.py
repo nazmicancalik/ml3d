@@ -86,12 +86,13 @@ def train(model, trainloader, valloader, device, config):
 
             # TODO: forward pass
             prediction = model(batch['voxel'])
+
             # TODO: compute total loss = sum of loss for whole prediction + losses for partial predictions
             loss_total = torch.zeros([1], dtype=batch['voxel'].dtype, requires_grad=True).to(device)
             for output_idx in range(prediction.shape[1]):
-                loss = loss_criterion(prediction[:,output_idx],batch['label'])
-                loss_total = loss_total + loss.item()  # TODO: Loss due to prediction[:, output_idx, :] (output_idx=0 for global prediction, 1-8 local)
-
+                loss = loss_criterion(prediction[:,output_idx,:],batch['label'])
+                loss_total = loss_total + loss  # TODO: Loss due to prediction[:, output_idx, :] (output_idx=0 for global prediction, 1-8 local)
+            
             # TODO: compute gradients on loss_total (backward pass)
             loss_total.backward()
 
@@ -120,12 +121,21 @@ def train(model, trainloader, valloader, device, config):
 
                     with torch.no_grad():
                         # TODO: Get prediction scores
-                        prediction = None
+                        prediction = model(batch_val['voxel'])
 
                     # TODO: Get predicted labels from scores
-                    predicted_label = None
+                    _, predicted_labels = torch.max(prediction, dim=2)
 
+                    
                     # TODO: keep track of total / correct / loss_total_val
+                    total += batch_val['label'].shape[0]
+                    correct+=(predicted_labels[:,0]==batch_val['label']).sum().item()
+                    
+                    # Sum up all losses
+                    for o in range(predicted_labels.shape[1]):
+                        loss = loss_criterion(prediction[:,o,:],batch_val['label'])
+                        loss_total_val = loss_total_val + loss.item()
+
 
                 accuracy = 100 * correct / total
 

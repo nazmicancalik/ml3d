@@ -82,9 +82,13 @@ class ShapeNetPoints(torch.utils.data.Dataset):
     class_name_mapping = json.loads(Path("exercise_2/data/shape_info.json").read_text())  # mapping for ShapeNet ids -> names
     classes = sorted(class_name_mapping.keys())
 
-    def __init__(self):
+    def __init__(self,split):
         # TODO Read sample IDs from the correct split file and store in self.items
-        pass
+        super().__init__()
+        assert split in ['train', 'val', 'overfit']
+
+        self.items = Path(f"exercise_2/data/splits/shapenet/{split}.txt").read_text().splitlines()  # keep track of shapes based on split
+
 
     def __getitem__(self, index):
         # TODO Get item associated with index, get class, load points with ShapeNetPoints.get_point_cloud

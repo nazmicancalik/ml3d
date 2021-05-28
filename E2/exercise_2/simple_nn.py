@@ -107,7 +107,7 @@ def train(model, train_dataloader, val_dataloader, device, config):
                     total += predicted_labels.shape[0]
                     correct += (predicted_labels == target_labels).sum().item()
 
-                    loss_val = loss_criterion(prediction, target_labels).item()
+                    loss_val += loss_criterion(prediction, target_labels).item()
 
                 accuracy = 100 * correct / total
                 print(f'[{epoch:03d}/{i:05d}] val_loss: {loss_val / len(val_dataloader):.3f}, val_accuracy: {accuracy:.3f}%')
