@@ -60,12 +60,12 @@ def train(model, trainloader, valloader, device, config):
 
     # declare loss and move to specified device
     # TODO: Define loss
-    loss_criterion = None
+    loss_criterion = torch.nn.CrossEntropyLoss()
 
     loss_criterion.to(device)
 
     # TODO: declare optimizer (learning rate provided in config)
-    optimizer = None
+    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
 
     # set model to train, important if your network has e.g. dropout or batchnorm layers
     model.train()
@@ -82,19 +82,22 @@ def train(model, trainloader, valloader, device, config):
             ShapeNetVox.move_batch_to_device(batch, device)
 
             # TODO: zero out previously accumulated gradients
+            optimizer.zero_grad()
 
             # TODO: forward pass
-            prediction = None
-
+            prediction = model(batch['voxel'])
             # TODO: compute total loss = sum of loss for whole prediction + losses for partial predictions
             loss_total = torch.zeros([1], dtype=batch['voxel'].dtype, requires_grad=True).to(device)
             for output_idx in range(prediction.shape[1]):
-                loss_total = loss_total + None  # TODO: Loss due to prediction[:, output_idx, :] (output_idx=0 for global prediction, 1-8 local)
+                loss = loss_criterion(prediction[:,output_idx],batch['label'])
+                loss_total = loss_total + loss.item()  # TODO: Loss due to prediction[:, output_idx, :] (output_idx=0 for global prediction, 1-8 local)
 
             # TODO: compute gradients on loss_total (backward pass)
+            loss_total.backward()
 
             # TODO: update network params
-
+            optimizer.step()
+            
             # loss logging
             train_loss_running += loss_total.item()
             iteration = epoch * len(trainloader) + i
