@@ -122,5 +122,6 @@ class ShapeNetPoints(torch.utils.data.Dataset):
         :return: a numpy array representing the point cloud, in shape 3 x 1024
         """
         category_id, shape_id = shapenet_id.split('/')
-        points = trimesh.load(ShapeNetPoints.dataset_path / (shapenet_id + '.obj')).astype(np.float32)
+        points = trimesh.load(ShapeNetPoints.dataset_path / (shapenet_id + '.obj'))
+        points = np.array(points.vertices).T
         return points

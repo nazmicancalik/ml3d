@@ -9,16 +9,67 @@ from exercise_2.model.pointnet import PointNetClassification
 def train(model, trainloader, valloader, device, config):
 
     # TODO Declare loss and move to specified device
-    loss_criterion = None
+    loss_criterion = torch.nn.CrossEntropyLoss()
+    loss_criterion.to(device)
 
     # TODO Declare optimizer
-    optimizer = None
+    optimizer = torch.optim.Adam(model.parameters(),lr=config['learning_rate'])
 
     # set model to train, important if your network has e.g. dropout or batchnorm layers
     model.train()
 
     # TODO Implement the training loop. It looks very much the same as in the previous exercise part, except that you are now using points instead of voxel grids
+    best_accuracy = 0.
 
+    for epoch in range(config['max_epochs']):
+        train_loss_running = 0.
+
+        for i,batch in enumerate(trainloader):
+            ShapeNetPoints.move_batch_to_device(batch,device)
+
+            optimizer.zero_grad()
+            prediction = model(batch['points'])
+            loss = loss_criterion(prediction,batch['label'])
+            loss.backward()
+            optimizer.step()
+
+            train_loss_running += loss.item()
+            iteration = epoch * len(trainloader) + i
+
+            if iteration % config['print_every_n'] == (config['print_every_n'] - 1):
+                print(f'[{epoch:03d}/{i:05d}] train_loss: {train_loss_running / config["print_every_n"]:.3f}')
+                train_loss_running = 0.
+            
+            # validation
+            if iteration % config['validate_every_n'] == (config['validate_every_n']-1):
+                model.eval()
+                loss_total_val = 0
+                total, correct = 0, 0
+                
+                for val_batch in valloader:
+                    ShapeNetPoints.move_batch_to_device(val_batch,device)
+
+                    with torch.no_grad():
+                        prediction = model(val_batch['points'])
+
+                    _,predicted_labels = torch.max(prediction, dim=1)
+
+                    total += val_batch['label'].shape[0]
+                    correct += (predicted_labels==val_batch['label']).sum().item()
+                    
+                    loss = loss_criterion(prediction,val_batch['label'])
+                    loss_total_val += loss.item()
+                
+                accuracy = 100 * correct / total
+
+                print(f'[{epoch:03d}/{i:05d}] val_loss: {loss_total_val / len(valloader):.3f}, val_accuracy: {accuracy:.3f}%')
+
+                if accuracy > best_accuracy:
+                    torch.save(model.state_dict(), f'exercise_2/runs/{config["experiment_name"]}/model_best.ckpt')
+                    best_accuracy = accuracy
+
+                # set model back to train
+                model.train()
 
 def main(config):
     """
