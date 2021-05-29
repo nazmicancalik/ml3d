@@ -26,8 +26,8 @@ class InferenceHandlerPointNetClassification:
         input_tensor = torch.from_numpy(points).float().unsqueeze(0)
 
         # TODO: Predict class
-        prediction = None
-        class_id = None
-        class_name = None
-
+        prediction = self.model(input_tensor)
+        _, predicted_labels = torch.max(prediction, dim=1)
+        class_id = ShapeNetPoints.classes[predicted_labels[0]]
+        class_name = ShapeNetPoints.class_name_mapping[class_id]
         return class_name

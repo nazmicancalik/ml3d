@@ -17,8 +17,6 @@ class TNet(nn.Module):
         self.bn3 = nn.BatchNorm1d(1024)
         
         self.relu = nn.ReLU()
-        #self.relu2 = nn.ReLU()
-        #self.relu3 = nn.ReLU()
 
         # TODO Add layers: Linear 1024->512, 512->256, 256->k^2 with corresponding batch norms and ReLU
         self.fc1 = nn.Linear(1024, 512)
@@ -27,9 +25,6 @@ class TNet(nn.Module):
         
         self.bn4 = nn.BatchNorm1d(512)
         self.bn5 = nn.BatchNorm1d(256)
-
-        #self.relu4 = nn.ReLU()
-        #self.relu5 = nn.ReLU()
 
         self.register_buffer('identity', torch.from_numpy(np.eye(k).flatten().astype(np.float32)).view(1, k ** 2))
         self.k = k
@@ -40,7 +35,6 @@ class TNet(nn.Module):
         # TODO Pass input through layers, applying the same max operation as in PointNetEncoder
         x = self.relu(self.bn1(self.conv1(x)))
         x = self.relu(self.bn2(self.conv2(x)))
-        #x = self.relu3(self.bn3(self.conv3(x)))
         x = self.bn3(self.conv3(x))
 
         x = torch.max(x,2,keepdim=True)[0]
@@ -73,8 +67,6 @@ class PointNetEncoder(nn.Module):
         self.bn3 = nn.BatchNorm1d(1024)
 
         self.relu = nn.ReLU()
-        #self.relu2 = nn.ReLU()
-        #self.relu3 = nn.ReLU()
         
         self.input_transform_net = TNet(k=3)
         self.feature_transform_net = TNet(k=64)
@@ -96,7 +88,6 @@ class PointNetEncoder(nn.Module):
 
         # TODO: Layers 2 and 3: 64->128, 128->1024
         x = self.relu(self.bn2(self.conv2(x)))
-        #x = self.relu(self.bn3(self.conv3(x)))
         x = self.bn3(self.conv3(x))
         
         # This is the symmetric max operation
@@ -126,7 +117,6 @@ class PointNetClassification(nn.Module):
         self.bn2 = nn.BatchNorm1d(256)
 
         self.relu = nn.ReLU()
-        #self.relu2 = nn.ReLU()
 
         self.dropout = nn.Dropout(p=0.3)
 
@@ -146,9 +136,26 @@ class PointNetSegmentation(nn.Module):
         self.num_classes = num_classes
         self.encoder = PointNetEncoder(return_point_features=True)
         # TODO: Define convolutions, batch norms, and ReLU
+        self.conv1 = nn.Conv1d(1088,512,1)
+        self.conv2 = nn.Conv1d(512,256,1)
+        self.conv3 = nn.Conv1d(256,128,1)
+
+        self.conv4 = nn.Conv1d(128,num_classes,1)
+        
+
+        self.bn1 = nn.BatchNorm1d(512)
+        self.bn2 = nn.BatchNorm1d(256)
+        self.bn3 = nn.BatchNorm1d(128)
+
+        self.relu = nn.ReLU()
 
     def forward(self, x):
-        x = self.encoder(x)
+        x = self.encoder(x) # Concatenated features
         # TODO: Pass x through all layers, no batch norm or ReLU after the last conv layer
+        x = self.relu(self.bn1(self.conv1(x)))
+        x = self.relu(self.bn2(self.conv2(x)))
+        x = self.relu(self.bn3(self.conv3(x)))
+        x = self.conv4(x)
+
         x = x.transpose(2, 1).contiguous()
         return x

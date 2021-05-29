@@ -30,7 +30,7 @@ class ShapeNetParts(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.items)
-
+        
     @staticmethod
     def move_batch_to_device(batch, device):
         """
@@ -52,4 +52,13 @@ class ShapeNetParts(torch.utils.data.Dataset):
         # TODO: Load point cloud and segmentation labels, subsample to 1024 points. Make sure points and labels still correspond afterwards!
         # TODO: Important: Use ShapeNetParts.part_id_to_overall_id to convert the part labels you get from the .seg files from local to global ID as they start at 0 for each shape class whereas we want to predict the overall part class.
         # ShapeNetParts.part_id_to_overall_id converts an ID in form <shapenetclass_partlabel> to and integer representing the global part class id
-        pass
+        with open(ShapeNetParts.dataset_path / category_id / 'points' / (shape_id + '.pts'),"rb") as points_file:
+            points = np.loadtxt(points_file,dtype=np.float32)
+        with open(ShapeNetParts.dataset_path / category_id / 'points_label' / (shape_id + '.seg'),"rb") as points_label_file:
+            points_label = np.loadtxt(points_label_file,dtype=np.int64)
+        
+        indices = np.random.choice(range(len(points)), size=1024)
+        points = points[indices]
+        points_label = points_label[indices]
+        return points.T,points_label
+        
