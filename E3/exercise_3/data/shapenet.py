@@ -42,7 +42,7 @@ class ShapeNet(torch.utils.data.Dataset):
     @staticmethod
     def move_batch_to_device(batch, device):
         # TODO add code to move batch to device
-        batch['name'] = batch['name'].to(device)
+        #batch['name'] = batch['name'].to(device)
         batch['input_sdf'] = batch['input_sdf'].to(device)
         batch['target_df'] = batch['target_df'].to(device)
 
