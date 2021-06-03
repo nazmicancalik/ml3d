@@ -29,8 +29,9 @@ class InferenceHandler3DEPN:
         with torch.no_grad():
             reconstructed_df = None
             # TODO: Pass input in the right format though the network and revert the log scaling by applying exp and subtracting 1
-            input_sdf = np.stack([np.abs(input_sdf), np.sign(input_sdf)])
-            reconstructed_df = model(input_sdf)
+            input_ = np.stack([np.abs(input_sdf), np.sign(input_sdf)])
+            input_ = torch.from_numpy(input_).float().unsqueeze(0)
+            reconstructed_df = self.model(input_)
             reconstructed_df = torch.exp(reconstructed_df) - 1
 
         input_sdf = np.abs(input_sdf)

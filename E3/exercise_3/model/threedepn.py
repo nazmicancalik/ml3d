@@ -62,7 +62,7 @@ class ThreeDEPN(nn.Module):
         x = self.relu(self.bn6(self.tconv3(torch.cat((x,x_e2),dim=1))))
         x = self.tconv4(torch.cat((x,x_e1),dim=1))
         
-        x = torch.squeeze(x, dim=1)
+        x = torch.squeeze(x, dim=1) 
         # TODO: Log scaling
         x = torch.abs(x)
         x = torch.log(x+1)
