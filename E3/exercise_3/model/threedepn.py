@@ -64,5 +64,6 @@ class ThreeDEPN(nn.Module):
         
         x = torch.squeeze(x, dim=1)
         # TODO: Log scaling
+        x = torch.abs(x)
         x = torch.log(x+1)
         return x
