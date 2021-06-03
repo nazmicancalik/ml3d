@@ -23,10 +23,15 @@ class InferenceHandler3DEPN:
         :return: Tuple with mesh representations of input, reconstruction, and target
         """
         # TODO Apply truncation distance: SDF values should lie within -3 and 3, DF values between 0 and 3
-
+        input_sdf = np.clip(input_sdf,a_min=-self.truncation_distance,a_max=self.truncation_distance)
+        target_df = np.clip(target_df, a_min=0, a_max=self.truncation_distance)
+    
         with torch.no_grad():
             reconstructed_df = None
             # TODO: Pass input in the right format though the network and revert the log scaling by applying exp and subtracting 1
+            input_sdf = np.stack([np.abs(input_sdf), np.sign(input_sdf)])
+            reconstructed_df = model(input_sdf)
+            reconstructed_df = torch.exp(reconstructed_df) - 1
 
         input_sdf = np.abs(input_sdf)
         input_mesh = marching_cubes(input_sdf, level=1)
