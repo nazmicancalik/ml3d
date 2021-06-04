@@ -15,7 +15,7 @@ class DeepSDFDecoder(nn.Module):
         self.wn1 = nn.utils.weight_norm(nn.Linear(latent_size+3,512))
         self.wn2 = nn.utils.weight_norm(nn.Linear(512,512))
         self.wn3 = nn.utils.weight_norm(nn.Linear(512,512))
-        self.wn4 = nn.utils.weight_norm(nn.Linear(512,512-latent_size))
+        self.wn4 = nn.utils.weight_norm(nn.Linear(512,512-latent_size-3))
 
         self.wn5 = nn.utils.weight_norm(nn.Linear(512,512))
         self.wn6 = nn.utils.weight_norm(nn.Linear(512,512))
@@ -39,7 +39,7 @@ class DeepSDFDecoder(nn.Module):
         x = self.dropout(self.relu(self.wn3(x)))
         x = self.dropout(self.relu(self.wn4(x)))
         
-        x = torch.cat((x,x_in),dim=0)
+        x = torch.cat((x,x_in),dim=1)
         x = self.dropout(self.relu(self.wn5(x)))
         x = self.dropout(self.relu(self.wn6(x)))
         x = self.dropout(self.relu(self.wn7(x)))
