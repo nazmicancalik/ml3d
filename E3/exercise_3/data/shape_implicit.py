@@ -11,7 +11,7 @@ class ShapeImplicit(torch.utils.data.Dataset):
     Dataset for loading deep sdf training samples
     """
 
-    dataset_path = Path("exercise_3/data/sdf_sofas")  # path to sdf data for ShapeNet sofa class - make sure you've downloaded the processed data at appropriate path
+    dataset_path = Path("/usr/home/sut/datasets/e3/sdf_sofas")  # path to sdf data for ShapeNet sofa class - make sure you've downloaded the processed data at appropriate path
 
     def __init__(self, num_sample_points, split):
         """
@@ -63,7 +63,7 @@ class ShapeImplicit(torch.utils.data.Dataset):
         :return: length of the dataset
         """
         # TODO: Implement
-        return
+        return len(self.items)
 
     @staticmethod
     def move_batch_to_device(batch, device):
@@ -88,8 +88,17 @@ class ShapeImplicit(torch.utils.data.Dataset):
         # TODO: Implement such that you return a pytorch float32 torch tensor of shape (self.num_sample_points, 4)
         # the returned tensor shoud have approximately self.num_sample_points/2 randomly selected samples from pos_tensor
         # and approximately self.num_sample_points/2 randomly selected samples from neg_tensor
+        half = int(self.num_sample_points / 2)
 
-        return
+        pos_positions = (torch.rand(half) * pos_tensor.shape[0]).long()
+        neg_positions = (torch.rand(half) * neg_tensor.shape[0]).long()
+
+        sample_pos = torch.index_select(pos_tensor, 0, pos_positions)
+        sample_neg = torch.index_select(neg_tensor, 0, neg_positions)
+
+        samples = torch.cat([sample_pos, sample_neg], 0)
+        
+        return samples
 
     @staticmethod
     def get_mesh(shape_id):
