@@ -23,7 +23,7 @@ def train(model, latent_vectors, train_dataloader, device, config):
         },
         {
             # TODO: optimizer params and learning rate for latent code (lr provided in config)
-            'params': latent_vectors.params()
+            'params': latent_vectors.parameters(),
             'lr': config['learning_rate_code']
         }
     ])
