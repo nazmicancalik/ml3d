@@ -7,8 +7,8 @@ import torch
 
 class ShapeNet(torch.utils.data.Dataset):
     num_classes = 8
-    dataset_sdf_path = Path("/usr/home/sut/datasets/e3/shapenet_dim32_sdf")  # path to voxel data
-    dataset_df_path = Path("/usr/home/sut/datasets/e3//shapenet_dim32_df")  # path to voxel data
+    dataset_sdf_path = Path("exercise_3/data/shapenet_dim32_sdf")  # path to voxel data
+    dataset_df_path = Path("exercise_3/data/shapenet_dim32_df")  # path to voxel data
     class_name_mapping = json.loads(Path("exercise_3/data/shape_info.json").read_text())  # mapping for ShapeNet ids -> names
     classes = sorted(class_name_mapping.keys())
 
