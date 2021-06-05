@@ -66,7 +66,8 @@ class InferenceHandlerDeepSDF:
             optimizer.zero_grad()
             
             # TODO: sample a random batch from the observations, batch size = self.num_samples
-            batch_indices = np.random.choice(len(len(points),self.num_samples))
+            probs = torch.full((len(points),),1./len(points))
+            batch_indices = probs.multinomial(num_samples=self.num_samples, replacement=True)
 
             batch_points = points[batch_indices, :]
             batch_sdf = sdf[batch_indices, :]
